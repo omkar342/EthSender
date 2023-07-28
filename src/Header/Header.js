@@ -5,7 +5,7 @@ import ethLogo from "../assets/ethLogo.png";
 const Header = () => {
   return (
     <div className="header">
-      <h3>EthSender </h3>
+      <h2>EthSender </h2>
       <img src={ethLogo} alt="ethLogo" className="ethLogo" />
     </div>
   );
