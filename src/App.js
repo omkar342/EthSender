@@ -1,11 +1,13 @@
 import "./App.css";
 import Header from "./Header/Header";
+import Footer from "./Footer/Footer";
 
 function App() {
   return (
     <div className="App">
-      <Header></Header>
+      <Header />
       <h1>Omkar</h1>
+      <Footer />
     </div>
   );
 }

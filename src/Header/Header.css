@@ -32,6 +32,7 @@
   display: inline;
   border-radius: 100%;
   margin: 0px 2px 0px 18px;
+  border: 1px solid #5d83ec;
 }
 
 .header button p {
