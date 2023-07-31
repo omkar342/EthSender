@@ -1,0 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=Raleway&display=swap");
+
+.send_ether_form input {
+  display: block;
+  margin: 10px auto;
+  border: 2px solid #5d83ec;
+  border-radius: 6px;
+  width: 55%;
+  padding: 7px 7px;
+  font-family: "Raleway", sans-serif;
+}
+
+.send_ether_form label {
+  font-family: "Raleway", sans-serif;
+  margin: auto;
+}
+
+.send_ether_form input::selection {
+  border: 2px solid #5d83ec;
+}
+
+.send_ether_form {
+  text-align: center;
+}
