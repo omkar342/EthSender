@@ -1,29 +1,23 @@
 import React, { useState } from "react";
 import "./ContractForm.css";
 
-const MyComponent = () => {
-  const [amountToBeSendToSmartContract, setAmountToBeSendToSmartContract] =
-    useState();
-
-  const sendEtherToSmartContract = (e) => {
-    // Your button click logic here
-    e.preventDefault();
-    console.log(amountToBeSendToSmartContract);
-  };
-
+const MyComponent = (props) => {
+  console.log("value is", props.amountToBeSendToSmartContract);
   return (
     <div className="contract_form">
       <form
         action=""
-        onSubmit={(e) => {
-          sendEtherToSmartContract(e);
+        onSubmit={(event) => {
+          event.preventDefault();
+          props.sendEtherToSmartContract();
         }}
       >
         <input
           type="number"
+          value={props.amountToBeSendToSmartContract}
           placeholder="Enter Ethers (in ETH) to be sent to Smart Contract Address."
           onChange={(e) => {
-            setAmountToBeSendToSmartContract(e.target.value);
+            props.setAmountToBeSendToSmartContract(e.target.value);
           }}
         />
         <button>Send</button>
