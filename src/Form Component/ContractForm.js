@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./ContractForm.css";
 
-const MyComponent = (props) => {
+const ContractForm = (props) => {
   console.log("value is", props.amountToBeSendToSmartContract);
   return (
     <div className="contract_form">
@@ -26,4 +26,4 @@ const MyComponent = (props) => {
   );
 };
 
-export default MyComponent;
+export default ContractForm;
