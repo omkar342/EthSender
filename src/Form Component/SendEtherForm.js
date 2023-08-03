@@ -4,10 +4,8 @@ import "./SendEtherForm.css";
 import MainButton from "../Button Components/MainButton";
 
 function SendEtherForm(props) {
-  const [amount, setAmount] = useState();
+  const [amount, setAmount] = useState("");
   const [receiverAccount, setReceiverAccount] = useState("");
-
-  console.log(amount);
 
   return (
     <div>
@@ -18,7 +16,7 @@ function SendEtherForm(props) {
           event.preventDefault();
           props.handleSubmitForm(amount, receiverAccount);
 
-          setAmount();
+          setAmount("");
           setReceiverAccount("");
         }}
       >
@@ -27,6 +25,7 @@ function SendEtherForm(props) {
           value={receiverAccount}
           type="text"
           className="recipientAddress"
+          name="walletAddress"
           onChange={(e) => {
             setReceiverAccount(e.target.value);
           }}
@@ -37,7 +36,7 @@ function SendEtherForm(props) {
         </label>
         <input
           value={amount}
-          type="number"
+          type="text"
           className="etherAmount"
           placeholder="For e.g. 5"
           onChange={(e) => {

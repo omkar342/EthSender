@@ -32,10 +32,6 @@ function App() {
   const [loadingUserAccountAndBalance, setLoadingUserAccountAndBalance] =
     useState(false);
 
-  const handleSubmitForm = (amount, receiverAccount) => {
-    console.log(amount, receiverAccount);
-  };
-
   const handleConnectToWallet = async () => {
     setLoadingUserAccountAndBalance(true);
     const provider = await detectEthereumProvider();
@@ -46,24 +42,100 @@ function App() {
       setWeb3Api({ provider, web3 });
       console.log(`Provider is Detected ${provider}`);
     }
-    setLoadingUserAccountAndBalance(true);
+    setLoadingUserAccountAndBalance(false);
   };
 
   const sendEtherToSmartContract = async () => {
     if (contract !== null) {
-      setLoadingContractBalance(true);
-      const amountInWei = Web3.utils.toWei(
-        amountToBeSendToSmartContract,
-        "ether"
-      );
-      await contract.methods.receiveEthers().send({
-        from: userAccountAddress,
-        to: contractAddress,
-        value: amountInWei,
-      });
-      setReload(!reload);
-      setAmountToBeSendToSmartContract(0);
+      try {
+        setLoadingContractBalance(true);
+        const amountInWei = Web3.utils.toWei(
+          amountToBeSendToSmartContract,
+          "ether"
+        );
+        const receipt = await contract.methods.receiveEthers().send({
+          from: userAccountAddress,
+          to: contractAddress,
+          value: amountInWei,
+        });
+        console.log(receipt);
+        setReload(!reload);
+        setAmountToBeSendToSmartContract(0);
+      } catch (e) {
+        console.log(e);
+      }
     }
+  };
+
+  const sendEthersToGivenAddress = async (amount, receiverAccountAddress) => {
+    if (contract !== null) {
+      try {
+        setLoadingContractBalance(true);
+        const amountInWei = Web3.utils.toWei(amount, "ether");
+
+        const receipt = await contract.methods
+          .sendEthers(amountInWei, receiverAccountAddress)
+          .send({ from: userAccountAddress });
+
+        console.log(receipt);
+
+        setReload(!reload);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+
+  // Use this function to directly send ethers from User to the given address (But it's not working).
+
+  const sendEthersToGivenAddressFromUsersAccount = async (
+    amount,
+    receiverAccountAddress
+  ) => {
+    const senderPrivateKey =
+      "0x7d84045f68d2e75015fa724e5b9afb84e918ca72b704a3094eb56846668db2c9";
+
+    const senderAccount =
+      web3Api.web3.eth.accounts.privateKeyToAccount(senderPrivateKey);
+
+    const amountInWei = Web3.utils.toWei(amount, "ether");
+
+    const gasPrice = "20000000000";
+    const gasLimit = "21000";
+
+    console.log(senderAccount.address);
+
+    const transactionObject = {
+      from: senderAccount.address,
+      to: receiverAccountAddress,
+      value: amountInWei,
+      gasPrice: gasPrice,
+      gas: gasLimit,
+      nonce: parseInt(
+        await web3Api.web3.eth.getTransactionCount(senderAccount.address)
+      ),
+    };
+
+    // Sign the transaction with the sender's private key
+    const signedTransaction = await senderAccount.signTransaction(
+      transactionObject
+    );
+
+    console.log(signedTransaction);
+
+    // Send the signed transaction
+    web3Api.web3.eth
+      .sendSignedTransaction(signedTransaction.rawTransaction)
+      .on("transactionHash", (hash) => {
+        console.log("Transaction hash:", hash);
+      })
+      .on("receipt", (receipt) => {
+        console.log("Transaction receipt:", receipt);
+      })
+      .on("error", (error) => {
+        console.error("Error sending ethers:", error);
+      });
+    setReload(!reload);
   };
 
   useEffect(() => {
@@ -145,7 +217,7 @@ function App() {
         sendEtherToSmartContract={sendEtherToSmartContract}
         amountToBeSendToSmartContract={amountToBeSendToSmartContract}
       />
-      <SendEtherForm handleSubmitForm={handleSubmitForm} />
+      <SendEtherForm handleSubmitForm={sendEthersToGivenAddress} />
       <Footer />
     </div>
   );
