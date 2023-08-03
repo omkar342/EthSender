@@ -10,7 +10,9 @@ import detectEthereumProvider from "@metamask/detect-provider";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "./Config/SmartContractConfig";
 
 function App() {
-  const [myAccountAddress, setMyAccountAddress] = useState("");
+  const [userAccountAddress, setUserAccountAddress] = useState("");
+
+  const [userAccountBalance, setUserAccountBalance] = useState("");
 
   const [web3Api, setWeb3Api] = useState({ provider: null, web3: null });
 
@@ -27,11 +29,15 @@ function App() {
 
   const [loadingContractBalance, setLoadingContractBalance] = useState(false);
 
+  const [loadingUserAccountAndBalance, setLoadingUserAccountAndBalance] =
+    useState(false);
+
   const handleSubmitForm = (amount, receiverAccount) => {
-    console.log(amount, receiverAccount, "ljlj");
+    console.log(amount, receiverAccount);
   };
 
   const handleConnectToWallet = async () => {
+    setLoadingUserAccountAndBalance(true);
     const provider = await detectEthereumProvider();
 
     if (provider) {
@@ -40,9 +46,8 @@ function App() {
       setWeb3Api({ provider, web3 });
       console.log(`Provider is Detected ${provider}`);
     }
+    setLoadingUserAccountAndBalance(true);
   };
-
-  console.log(web3Api);
 
   const sendEtherToSmartContract = async () => {
     if (contract !== null) {
@@ -51,9 +56,9 @@ function App() {
         amountToBeSendToSmartContract,
         "ether"
       );
-      await contract.methods.receiveEthers(amountToBeSendToSmartContract).send({
-        from: myAccountAddress,
-        // to: contractAddress,
+      await contract.methods.receiveEthers().send({
+        from: userAccountAddress,
+        to: contractAddress,
         value: amountInWei,
       });
       setReload(!reload);
@@ -63,6 +68,7 @@ function App() {
 
   useEffect(() => {
     const detectProvider = async () => {
+      setLoadingUserAccountAndBalance(true);
       const provider = await detectEthereumProvider();
 
       if (provider) {
@@ -71,25 +77,27 @@ function App() {
         setWeb3Api({ provider, web3 });
         console.log(`Provider is Detected ${provider}`);
       }
+      setLoadingUserAccountAndBalance(false);
     };
 
     detectProvider();
   }, []);
 
-  console.log(amountToBeSendToSmartContract);
-
   useEffect(() => {
     const getAndSetAccount = async () => {
+      setLoadingContractBalance(true);
       const accounts = await web3Api.web3.eth.getAccounts();
-      console.log(accounts);
-      setMyAccountAddress(accounts[0]);
+      setUserAccountAddress(accounts[0]);
+
+      const balance = await web3Api.web3.eth.getBalance(accounts[0]);
+      const userBalanceInEth = Web3.utils.fromWei(balance, "ether");
+      setUserAccountBalance(userBalanceInEth);
 
       const sendEtherContract = new web3Api.web3.eth.Contract(
         CONTRACT_ABI,
         CONTRACT_ADDRESS
       );
       setContract(sendEtherContract);
-      console.log(sendEtherContract.options.address);
       setContractAddress(sendEtherContract.options.address);
 
       const smartContractBalance = await web3Api.web3.eth.getBalance(
@@ -99,7 +107,6 @@ function App() {
         smartContractBalance,
         "ether"
       );
-      console.log(smartContractBalanceInEther);
       setContractBalance(smartContractBalanceInEther);
       setLoadingContractBalance(false);
     };
@@ -109,7 +116,18 @@ function App() {
   return (
     <div className="App">
       <Header />
-      <h2>Your Wallet Address: {myAccountAddress}</h2>
+      <h2>
+        Your Wallet Address:{" "}
+        {loadingUserAccountAndBalance || userAccountAddress === ""
+          ? "Loading..."
+          : userAccountAddress}
+      </h2>
+      <h2>
+        Your Wallet Balance:{" "}
+        {loadingUserAccountAndBalance || userAccountBalance === ""
+          ? "Loading..."
+          : userAccountBalance}
+      </h2>
       <div style={{ margin: "30px 0px" }}>
         <MainButton
           title={"Connect to Wallet!"}
@@ -118,9 +136,9 @@ function App() {
       </div>
       <h3>
         Contract's Balance:{" "}
-        {!loadingContractBalance || !contractBalance
-          ? `${contractBalance}`
-          : "Loading..."}
+        {loadingContractBalance || contractBalance === ""
+          ? "Loading..."
+          : `${contractBalance}`}
       </h3>
       <ContractForm
         setAmountToBeSendToSmartContract={setAmountToBeSendToSmartContract}
