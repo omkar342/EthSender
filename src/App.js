@@ -98,7 +98,7 @@ function App() {
           amountToBeSendToSmartContract,
           "ether"
         );
-        const receipt = await contract.methods.receiveEthers().send({
+        await contract.methods.receiveEthers().send({
           from: userAccountAddress,
           to: contractAddress,
           value: amountInWei,
@@ -121,7 +121,7 @@ function App() {
         setLoadingContractBalance(true);
         const amountInWei = Web3.utils.toWei(amount, "ether");
 
-        const receipt = await contract.methods
+        await contract.methods
           .sendEthers(amountInWei, receiverAccountAddress)
           .send({ from: userAccountAddress });
 
@@ -152,8 +152,6 @@ function App() {
     const gasPrice = "20000000000";
     const gasLimit = "21000";
 
-    console.log(senderAccount.address);
-
     const transactionObject = {
       from: senderAccount.address,
       to: receiverAccountAddress,
@@ -169,8 +167,6 @@ function App() {
     const signedTransaction = await senderAccount.signTransaction(
       transactionObject
     );
-
-    console.log(signedTransaction);
 
     // Send the signed transaction
     web3Api.web3.eth
