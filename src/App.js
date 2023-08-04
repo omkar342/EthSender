@@ -9,6 +9,11 @@ import Web3 from "web3";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "./Config/SmartContractConfig";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// toast.configure();
+
 function App() {
   const [userAccountAddress, setUserAccountAddress] = useState("");
 
@@ -32,6 +37,46 @@ function App() {
   const [loadingUserAccountAndBalance, setLoadingUserAccountAndBalance] =
     useState(false);
 
+  const triggerSuccessToast = () => {
+    // Calling toast method by passing string
+    toast.success("🦄 Ethers sent successfully!", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+  };
+
+  const triggerErrorToast = () => {
+    toast.error("🦄 Ethers not sent!", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+  };
+
+  const triggerConnectedToast = () => {
+    toast.success("🦄 Connected to Metamask Wallet Successfully!", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+  };
+
   const handleConnectToWallet = async () => {
     setLoadingUserAccountAndBalance(true);
     const provider = await detectEthereumProvider();
@@ -40,7 +85,7 @@ function App() {
       await provider.request({ method: "eth_requestAccounts" });
       const web3 = new Web3(provider);
       setWeb3Api({ provider, web3 });
-      console.log(`Provider is Detected ${provider}`);
+      triggerConnectedToast();
     }
     setLoadingUserAccountAndBalance(false);
   };
@@ -58,10 +103,13 @@ function App() {
           to: contractAddress,
           value: amountInWei,
         });
-        console.log(receipt);
+
+        triggerSuccessToast();
         setReload(!reload);
         setAmountToBeSendToSmartContract(0);
       } catch (e) {
+        triggerErrorToast();
+        setReload(!reload);
         console.log(e);
       }
     }
@@ -77,10 +125,11 @@ function App() {
           .sendEthers(amountInWei, receiverAccountAddress)
           .send({ from: userAccountAddress });
 
-        console.log(receipt);
-
+        triggerSuccessToast();
         setReload(!reload);
       } catch (e) {
+        triggerErrorToast();
+        setReload(!reload);
         console.log(e);
       }
     }
@@ -147,7 +196,7 @@ function App() {
         await provider.request({ method: "eth_requestAccounts" });
         const web3 = new Web3(provider);
         setWeb3Api({ provider, web3 });
-        console.log(`Provider is Detected ${provider}`);
+        triggerConnectedToast();
       }
       setLoadingUserAccountAndBalance(false);
     };
@@ -219,6 +268,7 @@ function App() {
       />
       <SendEtherForm handleSubmitForm={sendEthersToGivenAddress} />
       <Footer />
+      <ToastContainer />
     </div>
   );
 }
