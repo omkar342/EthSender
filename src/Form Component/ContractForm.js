@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import "./ContractForm.css";
 
 const ContractForm = (props) => {
-  console.log("value is", props.amountToBeSendToSmartContract);
   return (
     <div className="contract_form">
       <form
